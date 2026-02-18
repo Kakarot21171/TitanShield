@@ -1,32 +1,30 @@
-import matplotlib.pyplot as plt
-from main import run_mission_simulation
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 
-def plot_mission_risk():
-    # Metrics to track
-    altitudes = range(0, 70001, 5000)
-    breakdown_voltages = []
+class PlotPanel(tk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
 
-    # Run simulation loop to collect data
-    for alt in altitudes:
-        result = run_mission_simulation(altitude=alt, op_voltage=1500, interference_vm=5000)
-        breakdown_voltages.append(result["Breakdown_V"])
+        self.fig = Figure(figsize=(6, 4), dpi=100)
+        self.ax = self.fig.add_subplot(111)
+        self.ax.set_xlabel("Frequency (GHz)")
+        self.ax.set_ylabel("Δ Phase (deg)")
+        self.ax.grid(True)
 
-    # Generate Analyzable Result: The "Safety Margin" Graph
-    plt.figure(figsize=(10, 6))
-    plt.plot(altitudes, breakdown_voltages, 'r-o', label='Arcing Threshold (Vb)')
-    plt.axhline(y=1500, color='b', linestyle='--', label='Operating Voltage (1500V)')
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+        self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
-    # Custom Logic: Highlight the Failure Zone
-    plt.fill_between(altitudes, 0, 1500, color='red', alpha=0.2, label='Failure Zone')
+        self._line = None
 
-    plt.title("Apex Shield RF: Dielectric Breakdown vs. Altitude")
-    plt.xlabel("Altitude (ft)")
-    plt.ylabel("Voltage (V)")
-    plt.grid(True)
-    plt.legend()
-    plt.show()
+    def plot(self, x, y, title=None):
+        self.ax.clear()
+        self.ax.grid(True)
+        self.ax.set_xlabel("Frequency (GHz)")
+        self.ax.set_ylabel("Δ Phase (deg)")
+        if title:
+            self.ax.set_title(title)
 
-
-if __name__ == "__main__":
-    plot_mission_risk()
+        self.ax.plot(x, y)
+        self.canvas.draw()

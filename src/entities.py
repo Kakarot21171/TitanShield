@@ -1,25 +1,32 @@
-import numpy as np
+from dataclasses import dataclass
 
+
+@dataclass(frozen=True)
+class CoaxCable:
+    name: str
+    velocity_factor: float   # fraction of speed of light
+    alpha_db_per_m: float    # simple attenuation (not required for phase shift, but handy)
+    temp_coeff_ppm_per_c: float  # ppm/°C change in electrical length (effective VF shift)
+
+
+# Example library (edit to match your cables)
 CABLE_LIBRARY = {
-    "RG-400": {"name": "RG-400 (Standard)", "d": 0.0009, "D": 0.0029, "se": 90},
-    "RG-393": {"name": "RG-393 (High Power)", "d": 0.0024, "D": 0.0072, "se": 80},
-    "Semi-Rigid": {"name": "Semi-Rigid (Space)", "d": 0.0005, "D": 0.0016, "se": 110}
+    "RG-58": CoaxCable(
+        name="RG-58",
+        velocity_factor=0.66,
+        alpha_db_per_m=0.20,
+        temp_coeff_ppm_per_c=50.0,
+    ),
+    "RG-213": CoaxCable(
+        name="RG-213",
+        velocity_factor=0.66,
+        alpha_db_per_m=0.12,
+        temp_coeff_ppm_per_c=45.0,
+    ),
+    "LMR-400": CoaxCable(
+        name="LMR-400",
+        velocity_factor=0.85,
+        alpha_db_per_m=0.07,
+        temp_coeff_ppm_per_c=20.0,
+    ),
 }
-
-class CoaxLine:
-    def __init__(self, name, d, D, epsilon_r, sigma, se_db):
-        # Entity 1 Properties
-        self.name = name
-        self.d = d  # inner conductor m
-        self.D = D  # outer shield m
-        self.gap = D - d
-        self.epsilon_r = epsilon_r
-        self.sigma = sigma  # Conductivity
-        self.se_db = se_db  # Shielding Effectiveness in dB
-
-class Atmosphere:
-    def __init__(self, altitude_ft):
-        # Entity 2 Properties
-        self.altitude = altitude_ft
-        # Barometric pressure formula
-        self.pressure = 101.325 * np.exp(-0.0000366 * altitude_ft)
