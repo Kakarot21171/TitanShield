@@ -182,7 +182,6 @@ class TitanShieldApp(tk.Tk):
                 f_start_ghz=f_start,
                 f_stop_ghz=f_stop,
                 n=n,
-                freq_ghz=0.0,  # placeholder, overridden inside sweep
                 **params
             )
 
