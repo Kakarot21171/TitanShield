@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from entities import CABLE_LIBRARY
-from models import compute_phase_deg, sweep_phase_vs_freq
+from models import compute_phase_deg, sweep_phase_vs_freq, compute_marker_metrics
 from visualizer import PlotPanel
 
 
@@ -40,6 +40,9 @@ class TitanShieldApp(tk.Tk):
         self.spacing_var = tk.DoubleVar(value=0.5)
         self.sag_var = tk.DoubleVar(value=2.0)
 
+        # Optional load impedance for mismatch calculations
+        self.z_load_var = tk.DoubleVar(value=50.0)
+
         # Frequency sweep settings (for the plot)
         self.f_start_var = tk.DoubleVar(value=0.1)
         self.f_stop_var = tk.DoubleVar(value=3.0)
@@ -74,9 +77,11 @@ class TitanShieldApp(tk.Tk):
 
         ttk.Label(self.controls, text="Marker Freq (GHz):").grid(row=1, column=2, sticky="w")
         self._make_slider(
-            row=1, col=3,
+            row=1,
+            col=3,
             var=self.freq_var,
-            minv=0.1, maxv=10.0,
+            minv=0.1,
+            maxv=10.0,
             step=0.1
         )
 
@@ -101,39 +106,66 @@ class TitanShieldApp(tk.Tk):
         ttk.Label(self.controls, text="Sag @1G (mm):").grid(row=4, column=2, sticky="w", pady=(6, 0))
         self._make_slider(row=4, col=3, var=self.sag_var, minv=0.0, maxv=50.0, step=0.1, pady=(6, 0))
 
-        # ---- Sweep controls (small) ----
+        # ---- Row 5: load impedance ----
+        ttk.Label(self.controls, text="Load Z (Ω):").grid(row=5, column=0, sticky="w", pady=(6, 0))
+        ttk.Entry(self.controls, textvariable=self.z_load_var, width=12).grid(
+            row=5, column=1, sticky="w", padx=(6, 14), pady=(6, 0)
+        )
+
+        # ---- Sweep controls ----
         sep = ttk.Separator(self.controls, orient="horizontal")
-        sep.grid(row=5, column=0, columnspan=4, sticky="ew", pady=10)
+        sep.grid(row=6, column=0, columnspan=4, sticky="ew", pady=10)
 
-        ttk.Label(self.controls, text="Plot Sweep:").grid(row=6, column=0, sticky="w")
+        ttk.Label(self.controls, text="Plot Sweep:").grid(row=7, column=0, sticky="w")
 
-        ttk.Label(self.controls, text="Start (GHz):").grid(row=7, column=0, sticky="w")
-        ttk.Entry(self.controls, textvariable=self.f_start_var, width=10).grid(row=7, column=1, sticky="w", padx=(6, 14))
+        ttk.Label(self.controls, text="Start (GHz):").grid(row=8, column=0, sticky="w")
+        ttk.Entry(self.controls, textvariable=self.f_start_var, width=10).grid(
+            row=8, column=1, sticky="w", padx=(6, 14)
+        )
 
-        ttk.Label(self.controls, text="Stop (GHz):").grid(row=7, column=2, sticky="w")
-        ttk.Entry(self.controls, textvariable=self.f_stop_var, width=10).grid(row=7, column=3, sticky="w", padx=(6, 0))
+        ttk.Label(self.controls, text="Stop (GHz):").grid(row=8, column=2, sticky="w")
+        ttk.Entry(self.controls, textvariable=self.f_stop_var, width=10).grid(
+            row=8, column=3, sticky="w", padx=(6, 0)
+        )
 
-        ttk.Label(self.controls, text="Points:").grid(row=8, column=0, sticky="w", pady=(6, 0))
-        ttk.Entry(self.controls, textvariable=self.f_points_var, width=10).grid(row=8, column=1, sticky="w", padx=(6, 14), pady=(6, 0))
+        ttk.Label(self.controls, text="Points:").grid(row=9, column=0, sticky="w", pady=(6, 0))
+        ttk.Entry(self.controls, textvariable=self.f_points_var, width=10).grid(
+            row=9, column=1, sticky="w", padx=(6, 14), pady=(6, 0)
+        )
 
-        ttk.Button(self.controls, text="Recompute / Redraw", command=self._recompute_and_draw)\
-            .grid(row=9, column=0, columnspan=4, sticky="ew", pady=(10, 0))
+        ttk.Button(self.controls, text="Recompute / Redraw", command=self._recompute_and_draw).grid(
+            row=10, column=0, columnspan=4, sticky="ew", pady=(10, 0)
+        )
 
         # Marker output (single point)
         self.marker_label = ttk.Label(self.controls, text="ΔPhase @ marker: 0.00°")
-        self.marker_label.grid(row=10, column=0, columnspan=4, sticky="w", pady=(10, 0))
+        self.marker_label.grid(row=11, column=0, columnspan=4, sticky="w", pady=(10, 0))
+
+        self.metrics_label = ttk.Label(
+            self.controls,
+            text="Z0: -- Ω | VSWR: -- | Shielding: -- dB | εeff: --",
+            justify="left",
+            wraplength=360
+        )
+        self.metrics_label.grid(row=12, column=0, columnspan=4, sticky="w", pady=(6, 0))
+
+        self.metrics_label_2 = ttk.Label(
+            self.controls,
+            text="VF: -- | RL: -- dB | Γ: -- | ML: -- dB",
+            justify="left",
+            wraplength=360
+        )
+        self.metrics_label_2.grid(row=13, column=0, columnspan=4, sticky="w", pady=(4, 0))
 
     def _make_slider(self, row, col, var, minv, maxv, step, pady=(0, 0), is_int=False):
         # Slider + value label inside a small frame
         frame = ttk.Frame(self.controls)
         frame.grid(row=row, column=col, sticky="w", pady=pady)
 
-        # Value label
         val_lbl = ttk.Label(frame, width=6, anchor="e")
         val_lbl.pack(side="left")
 
         def on_change(_=None):
-            # update value label
             v = var.get()
             if is_int:
                 v = int(round(float(v)))
@@ -143,12 +175,9 @@ class TitanShieldApp(tk.Tk):
                 val_lbl.config(text=f"{float(v):.2f}")
             self._recompute_and_draw()
 
-        # Slider
-        resolution = step
         scale = ttk.Scale(frame, from_=minv, to=maxv, variable=var, command=lambda e: on_change())
         scale.pack(side="left", fill="x", expand=True, padx=(6, 0))
 
-        # Initialize value label
         on_change()
 
     def _gather_params(self):
@@ -166,14 +195,39 @@ class TitanShieldApp(tk.Tk):
         try:
             params = self._gather_params()
 
-            # marker (single freq)
-            dphi_marker = compute_phase_deg(
-                freq_ghz=float(self.freq_var.get()),
+            # Marker metrics
+            marker_freq = float(self.freq_var.get())
+            z_load = float(self.z_load_var.get())
+
+            metrics = compute_marker_metrics(
+                freq_ghz=marker_freq,
+                z_load_ohm=z_load,
                 **params
             )
-            self.marker_label.config(text=f"ΔPhase @ {self.freq_var.get():.2f} GHz: {dphi_marker:.2f}°")
 
-            # sweep plot
+            self.marker_label.config(
+                text=f"ΔPhase @ {marker_freq:.2f} GHz: {metrics['phase_deg']:.2f}°"
+            )
+
+            self.metrics_label.config(
+                text=(
+                    f"Z0: {metrics['z0_ohm']:.2f} Ω | "
+                    f"VSWR: {metrics['vswr']:.3f} | "
+                    f"Shielding: {metrics['shielding_db']:.2f} dB | "
+                    f"εeff: {metrics['epsilon_eff']:.4f}"
+                )
+            )
+
+            self.metrics_label_2.config(
+                text=(
+                    f"VF: {metrics['vf_eff']:.4f} | "
+                    f"RL: {metrics['return_loss_db']:.2f} dB | "
+                    f"Γ: {metrics['gamma']:.4f} | "
+                    f"ML: {metrics['mismatch_loss_db']:.4f} dB"
+                )
+            )
+
+            # Sweep plot
             f_start = float(self.f_start_var.get())
             f_stop = float(self.f_stop_var.get())
             n = int(self.f_points_var.get())
@@ -185,10 +239,20 @@ class TitanShieldApp(tk.Tk):
                 **params
             )
 
-            title = f"{params['cable_type']} | L={params['length_m']:.2f}m | ΔT={params['delta_t_c']:.1f}°C | G={params['g_load']:.1f}"
+            title = (
+                f"{params['cable_type']} | "
+                f"L={params['length_m']:.2f}m | "
+                f"ΔT={params['delta_t_c']:.1f}°C | "
+                f"G={params['g_load']:.1f}"
+            )
             self.plot_panel.plot(freqs, phases, title=title)
 
             self.status_var.set("Status: Ready")
 
         except Exception as e:
             self.status_var.set(f"Status: Error - {e}")
+
+
+if __name__ == "__main__":
+    app = TitanShieldApp()
+    app.mainloop()

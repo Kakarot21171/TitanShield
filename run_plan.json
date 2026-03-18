@@ -1,0 +1,122 @@
+[
+  {
+    "cable_type": "RG-58",
+    "length_m": 5,
+    "delta_t_c": 0,
+    "g_load": 1,
+    "spans": 10,
+    "clamp_spacing_m": 0.5,
+    "sag_at_1g_mm": 2,
+    "f_start_ghz": 0.1,
+    "f_stop_ghz": 3.0,
+    "points": 200
+  },
+  {
+    "cable_type": "RG-58",
+    "length_m": 5,
+    "delta_t_c": 100,
+    "g_load": 1,
+    "spans": 10,
+    "clamp_spacing_m": 0.5,
+    "sag_at_1g_mm": 2,
+    "f_start_ghz": 0.1,
+    "f_stop_ghz": 3.0,
+    "points": 200
+  },
+  {
+    "cable_type": "RG-58",
+    "length_m": 5,
+    "delta_t_c": 0,
+    "g_load": 9,
+    "spans": 10,
+    "clamp_spacing_m": 0.5,
+    "sag_at_1g_mm": 2,
+    "f_start_ghz": 0.1,
+    "f_stop_ghz": 3.0,
+    "points": 200
+  },
+  {
+    "cable_type": "RG-213",
+    "length_m": 5,
+    "delta_t_c": 0,
+    "g_load": 1,
+    "spans": 10,
+    "clamp_spacing_m": 0.5,
+    "sag_at_1g_mm": 2,
+    "f_start_ghz": 0.1,
+    "f_stop_ghz": 3.0,
+    "points": 200
+  },
+  {
+    "cable_type": "RG-213",
+    "length_m": 10,
+    "delta_t_c": 0,
+    "g_load": 1,
+    "spans": 10,
+    "clamp_spacing_m": 0.5,
+    "sag_at_1g_mm": 2,
+    "f_start_ghz": 0.1,
+    "f_stop_ghz": 3.0,
+    "points": 200
+  },
+  {
+    "cable_type": "RG-213",
+    "length_m": 10,
+    "delta_t_c": 100,
+    "g_load": 9,
+    "spans": 10,
+    "clamp_spacing_m": 0.5,
+    "sag_at_1g_mm": 2,
+    "f_start_ghz": 0.1,
+    "f_stop_ghz": 3.0,
+    "points": 200
+  },
+  {
+    "cable_type": "LMR-400",
+    "length_m": 5,
+    "delta_t_c": 0,
+    "g_load": 1,
+    "spans": 10,
+    "clamp_spacing_m": 0.5,
+    "sag_at_1g_mm": 2,
+    "f_start_ghz": 0.1,
+    "f_stop_ghz": 3.0,
+    "points": 200
+  },
+  {
+    "cable_type": "LMR-400",
+    "length_m": 20,
+    "delta_t_c": 0,
+    "g_load": 1,
+    "spans": 10,
+    "clamp_spacing_m": 0.5,
+    "sag_at_1g_mm": 2,
+    "f_start_ghz": 0.1,
+    "f_stop_ghz": 3.0,
+    "points": 200
+  },
+  {
+    "cable_type": "LMR-400",
+    "length_m": 20,
+    "delta_t_c": 100,
+    "g_load": 9,
+    "spans": 10,
+    "clamp_spacing_m": 0.5,
+    "sag_at_1g_mm": 2,
+    "f_start_ghz": 0.1,
+    "f_stop_ghz": 3.0,
+    "points": 200
+  },
+  {
+    "cable_type": "RG-58",
+    "length_m": 20,
+    "delta_t_c": 50,
+    "g_load": 5,
+    "spans": 10,
+    "clamp_spacing_m": 0.5,
+    "sag_at_1g_mm": 2,
+    "f_start_ghz": 0.1,
+    "f_stop_ghz": 5.0,
+    "points": 300
+  }
+]

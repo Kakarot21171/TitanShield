@@ -1,0 +1,22 @@
+{
+    "run_id": "002",
+    "timestamp": "2026-03-13T00:15:03.851255",
+    "parameters": {
+        "cable_type": "RG-58",
+        "length_m": 5,
+        "delta_t_c": 100,
+        "g_load": 1,
+        "spans": 10,
+        "clamp_spacing_m": 0.5,
+        "sag_at_1g_mm": 2,
+        "f_start_ghz": 0.1,
+        "f_stop_ghz": 3.0,
+        "points": 200
+    },
+    "duration_sec": 0.0005970001220703125,
+    "status": "Complete",
+    "max_phase_deg": 179.21354136563605,
+    "min_phase_deg": -179.0006414295749,
+    "avg_phase_deg": 0.8528519228004245,
+    "data_file": "runs\\run_002_timeseries.csv"
+}
